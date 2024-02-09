@@ -10,9 +10,7 @@ class HomePage extends StatefulWidget {
   _HomePageState createState() => _HomePageState();
 }
 
-class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _animation;
+class _HomePageState extends State<HomePage> {
   final Map<String, List<String>> petCategories = {
     'Cat': ['Fluffy', 'Whiskers', 'Mittens'],
     'Dog': ['Fido', 'Rex', 'Buddy'],
@@ -21,27 +19,6 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   };
 
   int _selectedIndex = 0;
-  
-
-  @override
-  void initState() {
-    super.initState();
-    _controller = AnimationController(
-      duration: const Duration(seconds: 2), // Adjust duration here
-      vsync: this,
-    );
-    _animation = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut, // Adjust animation curve if needed
-    );
-    _controller.forward();
-  }
-
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
 
   @override
   Widget build(BuildContext context) {
@@ -93,25 +70,40 @@ class _HomePageState extends State<HomePage> with SingleTickerProviderStateMixin
   }
 
   Widget _buildPetCard(String petName) {
-    return Card(
-      margin: const EdgeInsets.all(8.0),
-      child: InkWell(
-        onTap: () {
-          Navigator.push(
-            context,
-            MaterialPageRoute(builder: (context) => DetailsPage(petName: petName)),
-          );
-        },
-        child: ScaleTransition(
-          scale: _animation,
-          child: Hero(
-            tag: petName,
-            child: SizedBox(
-              height: 200,
-              child: Image.asset(
-                'assets/images/$petName.jpeg', // Assuming images are stored in assets folder with pet name as file name
-                fit: BoxFit.cover,
-              ),
+    return InkWell(
+      onTap: () {
+        Navigator.push(
+          context,
+          MaterialPageRoute(builder: (context) => DetailsPage(petName: petName)),
+        );
+      },
+      child: Hero(
+        tag: petName,
+        child: Card(
+          margin: const EdgeInsets.all(8.0),
+          shape: RoundedRectangleBorder(
+            borderRadius: BorderRadius.circular(16.0),
+          ),
+          elevation: 4.0,
+          child: Padding(
+            padding: const EdgeInsets.all(8.0),
+            child: Row(
+              children: [
+                CircleAvatar(
+                  radius: 30,
+                  backgroundImage: AssetImage(
+                    'assets/images/$petName.jpeg',
+                  ),
+                ),
+                const SizedBox(width: 16.0),
+                Text(
+                  petName,
+                  style: TextStyle(
+                    fontWeight: FontWeight.bold,
+                    fontSize: 20.0,
+                  ),
+                ),
+              ],
             ),
           ),
         ),

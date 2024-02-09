@@ -1,7 +1,8 @@
-// DetailsPage
 import 'package:flutter/material.dart';
+import 'package:petsync/Pet.dart'; // Import the Pet class from the correct location
 import 'package:petsync/historyPage.dart';
 import 'package:petsync/home.dart';
+import 'package:petsync/pets_data.dart';
 
 class DetailsPage extends StatefulWidget {
   const DetailsPage({Key? key, required this.petName}) : super(key: key);
@@ -12,50 +13,23 @@ class DetailsPage extends StatefulWidget {
   _DetailsPageState createState() => _DetailsPageState();
 }
 
-class _DetailsPageState extends State<DetailsPage> with SingleTickerProviderStateMixin {
-  late AnimationController _controller;
-  late Animation<double> _animation;
+class _DetailsPageState extends State<DetailsPage> {
+  late Pet pet; // Declare pet as late to be initialized later
 
   int _selectedIndex = 0;
 
   @override
   void initState() {
     super.initState();
-    _controller = AnimationController(
-      duration: const Duration(seconds: 2), // Adjust duration here
-      vsync: this,
-    );
-    _animation = CurvedAnimation(
-      parent: _controller,
-      curve: Curves.easeInOut, // Adjust animation curve if needed
-    );
-    _controller.forward();
+    // Initialize the pet object based on its name
+    pet = _findPet(widget.petName);
   }
 
-  @override
-  void dispose() {
-    _controller.dispose();
-    super.dispose();
-  }
-
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-      switch (index) {
-        case 0:
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const HistoryPage()),
-          );
-          break;
-        case 1:
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const HomePage()),
-          );
-          break;
-      }
-    });
+  // Method to find the pet based on its name
+  Pet _findPet(String petName) {
+    // Example implementation; replace it with your logic to find the pet object
+    // based on its name from the list of pets
+    return pets.firstWhere((pet) => pet.name == petName);
   }
 
   @override
@@ -70,18 +44,46 @@ class _DetailsPageState extends State<DetailsPage> with SingleTickerProviderStat
           Navigator.pop(context);
         },
         child: Center(
-          child: ScaleTransition(
-            scale: _animation,
-            child: Hero(
-              tag: widget.petName,
-              child: SizedBox(
-                height: 200,
-                child: Image.asset(
-                  'assets/images/${widget.petName}.jpeg',
-                  fit: BoxFit.cover,
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              Hero(
+                tag: widget.petName,
+                child: CircleAvatar(
+                  radius: 100,
+                  backgroundImage: AssetImage(
+                    'assets/images/${widget.petName}.jpeg',
+                  ),
                 ),
               ),
-            ),
+              const SizedBox(height: 20),
+              Text(
+                'Description of ${widget.petName}',
+                style: const TextStyle(
+                  fontSize: 20,
+                  fontWeight: FontWeight.bold,
+                ),
+              ),
+              const SizedBox(height: 10),
+              Text(
+                'Location: ${pet.location}', // Access the pet's location property
+                style: const TextStyle(
+                  fontSize: 16,
+                ),
+              ),
+              Text(
+                'Age: ${pet.age}', // Access the pet's age property
+                style: const TextStyle(
+                  fontSize: 16,
+                ),
+              ),
+              Text(
+                'Description: ${pet.description}', // Access the pet's vaccination status property
+                style: const TextStyle(
+                  fontSize: 16,
+                ),
+              ),
+            ],
           ),
         ),
       ),
@@ -102,5 +104,25 @@ class _DetailsPageState extends State<DetailsPage> with SingleTickerProviderStat
         onTap: _onItemTapped,
       ),
     );
+  }
+
+  void _onItemTapped(int index) {
+    setState(() {
+      _selectedIndex = index;
+      switch (index) {
+        case 0:
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const HistoryPage()),
+          );
+          break;
+        case 1:
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => const HomePage()),
+          );
+          break;
+      }
+    });
   }
 }
