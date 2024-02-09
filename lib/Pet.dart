@@ -4,10 +4,13 @@ class Pet {
   final int age;
   final String description;
 
+  bool adopted;
+
   Pet({
     required this.name,
     required this.location,
     required this.age,
     required this.description,
+    required this.adopted
   });
 }

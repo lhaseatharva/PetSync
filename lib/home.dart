@@ -1,4 +1,3 @@
-// HomePage
 import 'package:flutter/material.dart';
 import 'package:petsync/detailsPage.dart';
 import 'package:petsync/historyPage.dart';
@@ -18,7 +17,20 @@ class _HomePageState extends State<HomePage> {
     // Add more categories as needed
   };
 
+  late Map<String, bool> adoptedPets;
   int _selectedIndex = 0;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize the adoptedPets map with all pets set to false (not adopted)
+    adoptedPets = {};
+    petCategories.values.forEach((petList) {
+      petList.forEach((petName) {
+        adoptedPets[petName] = false;
+      });
+    });
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -51,7 +63,8 @@ class _HomePageState extends State<HomePage> {
               itemCount: petCategories.values.elementAt(_selectedIndex).length,
               itemBuilder: (context, index) {
                 final petName = petCategories.values.elementAt(_selectedIndex)[index];
-                return _buildPetCard(petName);
+                final isAdopted = adoptedPets[petName] ?? false;
+                return _buildPetCard(petName, isAdopted);
               },
             ),
           ),
@@ -69,14 +82,9 @@ class _HomePageState extends State<HomePage> {
     );
   }
 
-  Widget _buildPetCard(String petName) {
+  Widget _buildPetCard(String petName, bool isAdopted) {
     return InkWell(
-      onTap: () {
-        Navigator.push(
-          context,
-          MaterialPageRoute(builder: (context) => DetailsPage(petName: petName)),
-        );
-      },
+      onTap: isAdopted ? null : () => _navigateToDetailsPage(petName),
       child: Hero(
         tag: petName,
         child: Card(
@@ -84,7 +92,8 @@ class _HomePageState extends State<HomePage> {
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(16.0),
           ),
-          elevation: 4.0,
+          elevation: isAdopted ? 0.0 : 4.0, // Set elevation to 0 if pet is adopted
+          color: isAdopted ? Colors.grey : null, // Grey out the card if pet is adopted
           child: Padding(
             padding: const EdgeInsets.all(8.0),
             child: Row(
@@ -109,5 +118,18 @@ class _HomePageState extends State<HomePage> {
         ),
       ),
     );
+  }
+
+  void _navigateToDetailsPage(String petName) {
+    Navigator.push(
+      context,
+      MaterialPageRoute(builder: (context) => DetailsPage(petName: petName, onAdopted: _updateAdoptedStatus)),
+    );
+  }
+
+  void _updateAdoptedStatus(String petName, bool isAdopted) {
+    setState(() {
+      adoptedPets[petName] = isAdopted;
+    });
   }
 }

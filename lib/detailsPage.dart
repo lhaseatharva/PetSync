@@ -1,35 +1,24 @@
 import 'package:flutter/material.dart';
-import 'package:petsync/Pet.dart'; // Import the Pet class from the correct location
-import 'package:petsync/historyPage.dart';
-import 'package:petsync/home.dart';
+import 'package:petsync/Pet.dart';
 import 'package:petsync/pets_data.dart';
 
 class DetailsPage extends StatefulWidget {
-  const DetailsPage({Key? key, required this.petName}) : super(key: key);
+  const DetailsPage({Key? key, required this.petName, required this.onAdopted}) : super(key: key);
 
   final String petName;
+  final Function(String, bool) onAdopted;
 
   @override
-  _DetailsPageState createState() => _DetailsPageState();
+  State<DetailsPage> createState() => _DetailsPageState();
 }
 
 class _DetailsPageState extends State<DetailsPage> {
-  late Pet pet; // Declare pet as late to be initialized later
-
-  int _selectedIndex = 0;
+  Pet? _pet;
 
   @override
   void initState() {
     super.initState();
-    // Initialize the pet object based on its name
-    pet = _findPet(widget.petName);
-  }
-
-  // Method to find the pet based on its name
-  Pet _findPet(String petName) {
-    // Example implementation; replace it with your logic to find the pet object
-    // based on its name from the list of pets
-    return pets.firstWhere((pet) => pet.name == petName);
+    _pet = _findPet(widget.petName);
   }
 
   @override
@@ -65,64 +54,61 @@ class _DetailsPageState extends State<DetailsPage> {
                 ),
               ),
               const SizedBox(height: 10),
-              Text(
-                'Location: ${pet.location}', // Access the pet's location property
-                style: const TextStyle(
-                  fontSize: 16,
-                ),
-              ),
-              Text(
-                'Age: ${pet.age}', // Access the pet's age property
-                style: const TextStyle(
-                  fontSize: 16,
-                ),
-              ),
-              Text(
-                'Description: ${pet.description}', // Access the pet's vaccination status property
-                style: const TextStyle(
-                  fontSize: 16,
-                ),
+              _buildDetailRow('Location:', _pet!.location),
+              _buildDetailRow('Age:', '${_pet!.age} years'),
+              _buildDetailRow('Description:', _pet!.description),
+              const SizedBox(height: 20),
+              ElevatedButton(
+                onPressed: () {
+                  _adoptPet(context);
+                },
+                child: const Text('Adopt Me'),
               ),
             ],
           ),
         ),
       ),
-      bottomNavigationBar: BottomNavigationBar(
-        backgroundColor: Colors.amber.shade200,
-        items: const <BottomNavigationBarItem>[
-          BottomNavigationBarItem(
-            icon: Icon(Icons.pets),
-            label: 'Adoptions',
+    );
+  }
+
+  Widget _buildDetailRow(String title, String value) {
+    return Padding(
+      padding: const EdgeInsets.symmetric(vertical: 8.0),
+      child: Row(
+        mainAxisAlignment: MainAxisAlignment.start,
+        crossAxisAlignment: CrossAxisAlignment.start,
+        children: [
+          Text(
+            title,
+            style: const TextStyle(
+              fontSize: 16,
+              fontWeight: FontWeight.bold,
+            ),
           ),
-          BottomNavigationBarItem(
-            icon: Icon(Icons.home),
-            label: 'Home',
+          const SizedBox(width: 10),
+          Expanded(
+            child: Text(
+              value,
+              style: const TextStyle(fontSize: 16),
+            ),
           ),
         ],
-        currentIndex: _selectedIndex,
-        selectedItemColor: Colors.white,
-        onTap: _onItemTapped,
       ),
     );
   }
 
-  void _onItemTapped(int index) {
-    setState(() {
-      _selectedIndex = index;
-      switch (index) {
-        case 0:
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const HistoryPage()),
-          );
-          break;
-        case 1:
-          Navigator.pushReplacement(
-            context,
-            MaterialPageRoute(builder: (context) => const HomePage()),
-          );
-          break;
-      }
-    });
+  Pet _findPet(String petName) {
+    return pets.firstWhere((pet) => pet.name == petName);
+  }
+
+  void _adoptPet(BuildContext context) {
+    // Mark the pet as adopted
+    _pet!.adopted = true;
+
+    // Notify the home page that the pet has been adopted
+    widget.onAdopted(widget.petName, true);
+
+    // Navigate back to the home page
+    Navigator.pop(context);
   }
 }
