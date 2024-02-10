@@ -74,7 +74,7 @@ class _HomePageState extends State<HomePage> {
         onPressed: () {
           Navigator.push(
             context,
-            MaterialPageRoute(builder: (context) => const HistoryPage()),
+            MaterialPageRoute(builder: (context) => HistoryPage(adoptedPets: adoptedPets)),
           );
         },
         child: const Icon(Icons.history),

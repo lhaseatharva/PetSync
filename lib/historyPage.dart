@@ -1,33 +1,41 @@
 import 'package:flutter/material.dart';
-import 'package:petsync/home.dart';
+import 'package:petsync/Pet.dart';
+import 'package:petsync/pets_data.dart';
 
-class HistoryPage extends StatefulWidget {
-  const HistoryPage({Key? key}) : super(key: key);
+class HistoryPage extends StatelessWidget {
+  const HistoryPage({Key? key, required this.adoptedPets}) : super(key: key);
 
-  @override
-  _HistoryPageState createState() => _HistoryPageState();
-}
+  final Map<String, bool> adoptedPets;
 
-class _HistoryPageState extends State<HistoryPage> {
   @override
   Widget build(BuildContext context) {
+    final adoptedPetsList = adoptedPets.entries.where((entry) => entry.value).toList();
+
     return Scaffold(
       appBar: AppBar(
         backgroundColor: Colors.amber,
         title: const Text('Adoption History'),
       ),
-      body: Container(
-        alignment: Alignment.center,
-        child: ElevatedButton(
-          onPressed: () {
-            Navigator.pushReplacement(
-              context,
-              MaterialPageRoute(builder: (context) => const HomePage()),
-            );
-          },
-          child: const Text('Go to Home'),
-        ),
+      body: ListView.builder(
+        itemCount: adoptedPetsList.length,
+        itemBuilder: (context, index) {
+          final petEntry = adoptedPetsList[index];
+          final pet = _findPet(petEntry.key);
+
+          return ListTile(
+            leading: CircleAvatar(
+              radius: 30,
+              backgroundImage: AssetImage('assets/images/${pet.name}.jpeg'),
+            ),
+            title: Text(pet.name),
+            subtitle: Text(pet.description),
+          );
+        },
       ),
     );
+  }
+
+  Pet _findPet(String petName) {
+    return pets.firstWhere((pet) => pet.name == petName);
   }
 }
